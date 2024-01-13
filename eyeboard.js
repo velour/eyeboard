@@ -51,6 +51,9 @@ class Choice {
 			return;
 		}
 		this.setItems(items, this.isLetters);
+		if (this.isLetters && !botChoice.isLetters) {
+			botChoice.setItems(suggestWords(), botChoice.isLetters);
+		}
 	}
 
 	state() {
@@ -86,13 +89,28 @@ function currentWord() {
 	return text.innerHTML.slice(i, text.innerHTML.length);
 }
 
+function currentLetters() {
+	if (!topChoice.isLetters) {
+		return [];
+	}
+	return topChoice.leftItems.concat(topChoice.rightItems);
+}
+
 function suggestWords() {
 	var words = []
-	const cur = currentWord();
+	const curWord = currentWord();
+	const curLetters = currentLetters();
 	for (const word of englishWordsByFreq) {
-		if (word.startsWith(cur)) {
-			words.push(word)
+		if (!word.startsWith(curWord)) {
+			continue;
 		}
+		// If there has been a selection of letters,
+		// filter to the available letters.
+		if (curLetters.length <= alphabet.length &&
+			(word.length <= curWord.length || !curLetters.includes(word[curWord.length]))) {
+			continue;
+		}
+		words.push(word);
 		if (words.length == 8) {
 			break;
 		}
