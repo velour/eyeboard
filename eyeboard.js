@@ -77,7 +77,7 @@ const botChoice = new Choice(
 	document.getElementById("bot-left"),
 	document.getElementById("bot-right"));
 
-var history = [];
+var undoStack = [];
 
 const alphabet = "abcdefghijklmnopqrstuvwxyz";
 
@@ -113,7 +113,7 @@ function addText(t, isLetter) {
 }
 
 function save() {
-	history.push({
+	undoStack.push({
 		topChoice: topChoice.state(),
 		botChoice: botChoice.state(),
 		text: text.innerHTML,
@@ -125,7 +125,7 @@ function save() {
 function clear() {
 	text.innerHTML = "";
 	resetChoices();
-	history = [];
+	undoStack = [];
 	back.classList.remove("available");
 	back.classList.add("unavailable");
 }
@@ -136,14 +136,14 @@ function init() {
 		clear();
 	});
 	back.addEventListener("click", event => {
-		if (history.length == 0) {
+		if (undoStack.length == 0) {
 			return;
 		}
-		const prev = history.pop();
+		const prev = undoStack.pop();
 		topChoice.restore(prev.topChoice);
 		botChoice.restore(prev.botChoice);
 		text.innerHTML = prev.text;
-		if (history.length == 0) {
+		if (undoStack.length == 0) {
 			back.classList.remove("available");
 			back.classList.add("unavailable");
 		}
@@ -948,7 +948,7 @@ const englishWordsByFreq = [
 	"terrible",
 	"george",
 	"bag",
-	"history",
+	"undoStack",
 	"blue",
 	"near",
 	"broke",
