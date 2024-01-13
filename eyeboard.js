@@ -93,7 +93,7 @@ function suggestWords() {
 		if (word.startsWith(cur)) {
 			words.push(word)
 		}
-		if (words.length == 10) {
+		if (words.length == 8) {
 			break;
 		}
 	}
