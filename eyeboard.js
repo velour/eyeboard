@@ -9,8 +9,8 @@ wordFreqMap.set("a", 5);
 wordFreqMap.set("to", 5);
 wordFreqMap.set("it", 5);
 wordFreqMap.set("not", 5);
-wordFreqMap.set("yes", 5);
-wordFreqMap.set("no", 5);
+wordFreqMap.set("yes", 10000);
+wordFreqMap.set("no", 10000);
 wordFreqMap.set("that", 5);
 wordFreqMap.set("and", 5);
 
@@ -19,15 +19,23 @@ function commonWords() {
 	for (const [key, val] of wordFreqMap) {
 		wordFreq.push({word: key, freq: val})
 	}
+	wordFreq.sort((a, b) => {
+		if (a.freq == b.freq) {
+			return a.word > b.word;
+		}
+		return a.freq < b.freq;
+	});
 	var n = wordFreq.length;
-	if (n > 25) {
-		n = 25;
+	if (n > 10) {
+		n = 10;
 	}
+	wordFreq = wordFreq.slice(0, n);
+
 	wordFreq.sort((a, b) => {
 		return a.word > b.word;
 	});
 	const words = [];
-	for (const wf of wordFreq.slice(0, n)) {
+	for (const wf of wordFreq) {
 		words.push(wf.word);
 	}
 	return words;
