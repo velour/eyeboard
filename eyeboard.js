@@ -1,6 +1,8 @@
-const alphabet = "abcdefghijklmnopqrstuvwxyz"
+var history = [];
 
-var wordFreqMap = new Map()
+const alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+var wordFreqMap = new Map();
 wordFreqMap.set("be", 5);
 wordFreqMap.set("i", 5);
 wordFreqMap.set("you", 5);
@@ -53,8 +55,8 @@ class Choice {
 		this.isLetters = true;
 		this.leftElement = leftElement;
 		this.rightElement = rightElement;
-		this.leftElement.addEventListener("click", event => this.chooseLeft());
-		this.rightElement.addEventListener("click", event => this.chooseRight());
+		this.leftElement.addEventListener("click", event => this.choose(this.leftItems));
+		this.rightElement.addEventListener("click", event => this.choose(this.rightItems));
 		this.leftItems = [];
 		this.rightItems = [];
 	}
@@ -94,22 +96,25 @@ class Choice {
 		this.rightElement.innerHTML = rightString;
 	}
 
-	chooseLeft() {
-		if (this.leftItems.length == 1) {
-			addText(this.leftItems[0], this.isLetters);
+	choose(items) {
+		save();
+		if (items.length == 1) {
+			addText(items[0], this.isLetters);
 			resetChoices();
 			return;
 		}
-		this.setItems(this.leftItems, this.isLetters);
+		this.setItems(items, this.isLetters);
 	}
 
-	chooseRight() {
-		if (this.rightItems.length == 1) {
-			addText(this.rightItems[0], this.isLetters);
-			resetChoices();
-			return;
-		}
-		this.setItems(this.rightItems, this.isLetters);
+	state() {
+		return {
+			items: this.leftItems.concat(this.rightItems),
+			isLetters: this.isLetters,
+		};
+	}
+
+	restore(s) {
+		this.setItems(s.items, s.isLetters);
 	}
 }
 
@@ -137,6 +142,16 @@ function addText(t, isLetter) {
 	text.innerHTML += t;
 }
 
+function save() {
+	history.push({
+		topChoice: topChoice.state(),
+		botChoice: botChoice.state(),
+		text: text.innerHTML,
+	});
+	back.classList.remove("unavailable");
+	back.classList.add("available");
+}
+
 function clear() {
 	const words = text.innerHTML.split(" ");
 	for (const word of words) {
@@ -151,14 +166,31 @@ function clear() {
 	}
 	text.innerHTML = "";
 	resetChoices();
+	history = [];
+	back.classList.remove("available");
+	back.classList.add("unavailable");
 }
 
 function init() {
-	text.innerHTML = "";
-	resetChoices();
-	text.addEventListener("click", event => clear());
-	back.addEventListener("click", event => resetChoices());
+	clear();
+	text.addEventListener("click", event => {
+		clear();
+	});
+	back.addEventListener("click", event => {
+		if (history.length == 0) {
+			return;
+		}
+		const prev = history.pop();
+		topChoice.restore(prev.topChoice);
+		botChoice.restore(prev.botChoice);
+		text.innerHTML = prev.text;
+		if (history.length == 0) {
+			back.classList.remove("available");
+			back.classList.add("unavailable");
+		}
+	});
 	enter.addEventListener("click", event => {
+		save();
 		addText(" ");
 		resetChoices();
 	});

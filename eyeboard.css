@@ -74,3 +74,9 @@
 	line-height: 2.5;
 	text-align: center;
 }
+.available {
+	color: #000000;
+}
+.unavailable {
+	color: #AAAAAA;
+}
