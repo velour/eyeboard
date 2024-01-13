@@ -60,6 +60,17 @@ class Choice {
 	}
 
 	setItems(items, isLetters) {
+		if (isLetters) {
+			this.leftElement.classList.remove("words");
+			this.rightElement.classList.remove("words");
+			this.leftElement.classList.add("letters");
+			this.rightElement.classList.add("letters");
+		} else {
+			this.leftElement.classList.remove("letters");
+			this.rightElement.classList.remove("letters");
+			this.leftElement.classList.add("words");
+			this.rightElement.classList.add("words");
+		}
 		this.isLetters = isLetters;
 
 		const [left, right] = split(items);
