@@ -1,55 +1,3 @@
-var history = [];
-
-const alphabet = "abcdefghijklmnopqrstuvwxyz";
-
-var wordFreqMap = new Map();
-wordFreqMap.set("be", 5);
-wordFreqMap.set("i", 5);
-wordFreqMap.set("you", 5);
-wordFreqMap.set("the", 5);
-wordFreqMap.set("a", 5);
-wordFreqMap.set("to", 5);
-wordFreqMap.set("it", 5);
-wordFreqMap.set("not", 5);
-wordFreqMap.set("yes", 10000);
-wordFreqMap.set("no", 10000);
-wordFreqMap.set("that", 5);
-wordFreqMap.set("and", 5);
-
-function commonWords() {
-	var wordFreq = [];
-	for (const [key, val] of wordFreqMap) {
-		wordFreq.push({word: key, freq: val})
-	}
-	wordFreq.sort((a, b) => {
-		if (a.freq == b.freq) {
-			return a.word > b.word;
-		}
-		return a.freq < b.freq;
-	});
-	var n = wordFreq.length;
-	if (n > 10) {
-		n = 10;
-	}
-	wordFreq = wordFreq.slice(0, n);
-
-	wordFreq.sort((a, b) => {
-		return a.word > b.word;
-	});
-	const words = [];
-	for (const wf of wordFreq) {
-		words.push(wf.word);
-	}
-	return words;
-}
-
-function split(items) {
-	const i = items.length / 2;
-	const left = items.slice(0, i);
-	const right = items.slice(i, items.length);
-	return [left, right];
-}
-
 class Choice {
 	constructor(leftElement, rightElement) {
 		this.isLetters = true;
@@ -74,21 +22,20 @@ class Choice {
 			this.rightElement.classList.add("words");
 		}
 		this.isLetters = isLetters;
-
-		const [left, right] = split(items);
-		this.leftItems = left;
-		this.rightItems = right;
-
-		var leftString = "";
 		var sep = " ";
 		if (!this.isLetters) {
 			sep = "<br>";
 		}
+
+		const i = items.length / 2;
+		this.leftItems = items.slice(0, i);
+		var leftString = "";
 		for (const item of this.leftItems) {
 			leftString += item + sep;
 		}
 		this.leftElement.innerHTML = leftString;
 
+		this.rightItems = items.slice(i, items.length);
 		var rightString = "";
 		for (const item of this.rightItems) {
 			rightString += item + sep;
@@ -130,6 +77,59 @@ const botChoice = new Choice(
 	document.getElementById("bot-left"),
 	document.getElementById("bot-right"));
 
+var history = [];
+
+const alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+var wordFreqMap = new Map();
+wordFreqMap.set("be", 5);
+wordFreqMap.set("i", 5);
+wordFreqMap.set("you", 5);
+wordFreqMap.set("the", 5);
+wordFreqMap.set("a", 5);
+wordFreqMap.set("to", 5);
+wordFreqMap.set("it", 5);
+wordFreqMap.set("not", 5);
+wordFreqMap.set("yes", 10000);
+wordFreqMap.set("no", 10000);
+wordFreqMap.set("that", 5);
+wordFreqMap.set("and", 5);
+
+function currentWord() {
+	const i = text.innerHTML.lastIndexOf(" ") + 1;
+	return text.innerHTML.slice(i, text.innerHTML.length);
+}
+
+function commonWords() {
+	var wordFreq = [];
+	const cur = currentWord();
+	for (const [word, freq] of wordFreqMap) {
+		if (word.startsWith(cur)) {
+			wordFreq.push({word: word, freq: freq})
+		}
+	}
+	wordFreq.sort((a, b) => {
+		if (a.freq == b.freq) {
+			return a.word > b.word;
+		}
+		return a.freq < b.freq;
+	});
+	var n = wordFreq.length;
+	if (n > 10) {
+		n = 10;
+	}
+	wordFreq = wordFreq.slice(0, n);
+
+	wordFreq.sort((a, b) => {
+		return a.word > b.word;
+	});
+	const words = [];
+	for (const wf of wordFreq) {
+		words.push(wf.word);
+	}
+	return words;
+}
+
 function resetChoices() {
 	topChoice.setItems(alphabet, /*isLetters=*/ true);
 	botChoice.setItems(commonWords(), /*isLetters=*/ false);
@@ -137,7 +137,7 @@ function resetChoices() {
 
 function addText(t, isLetter) {
 	if (!isLetter) {
-		t += " ";
+		t = t.slice(currentWord().length) + " ";
 	}
 	text.innerHTML += t;
 }
